@@ -1,57 +1,112 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
-import { app } from '../../firebase';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
-import { LoadingButton } from '../ui/LoadingButton';
-import { toast } from 'react-hot-toast';
-import apis from '../../utils/apis';
-import { Signout } from '../ui/Signout';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import { app } from "../../firebase";
+import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
+import { LoadingButton } from "../ui/LoadingButton";
+import { toast } from "react-hot-toast";
+import apis from "../../utils/apis";
+import { Signout } from "../ui/Signout";
 
-export const Profile = () => {
+export const Profile = ({ user, setUser }) => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [photoURL, setPhotoURL] = useState('https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
+  const [password, setPassword] = useState("");
+
+  // ✅ Load user from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      navigate("/login"); // Redirect if no user is found
+    }
+    setProfileLoading(false);
+  }, []);
+
+  // ✅ Set user details when user changes
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setPhotoURL(
+        user.photoURL ||
+          "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg"
+      );
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     const auth = getAuth(app);
     try {
       await signOut(auth);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      setUser(null);
+      toast.success("Logged out successfully!");
       navigate('/login');
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("Sign-out error:", error);
+      toast.error("Error signing out. Please try again.");
     }
   };
+  
 
   const submitHandler = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication token missing!");
+
+      const updateData = { name };
+      if (password) updateData.password = password;
+
       const response = await fetch(apis().updateProfile, {
-        method: 'POST',
-        body: JSON.stringify({ name, email, password }),
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        body: JSON.stringify(updateData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ Include token
+        },
       });
 
       const result = await response.json();
-      setLoading(false);
+      if (!response.ok)
+        throw new Error(result.message || "Failed to update profile");
 
-      if (!response.ok) {
-        toast.error(result.message || "Failed to update profile");
-      } else if (result.status) {
-        toast.success(result.message || "User updated Successfully");
-        navigate('/login');
-      }
+      toast.success("Profile updated successfully!");
+      const updatedUser = { ...user, name, photoURL }; // ✅ Ensure photoURL persists
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
     } catch (error) {
+      toast.error(error.message || "An error occurred");
+    } finally {
       setLoading(false);
-      toast.error("An error occurred during the update process: " + error.message);
     }
   };
+
+  if (profileLoading) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-gray-600 text-lg">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-gray-600 text-lg">Redirecting to login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="auth_main">
@@ -61,35 +116,54 @@ export const Profile = () => {
             <img
               src={photoURL}
               alt="Profile"
-              className="w-24 h-24 rounded-full mb-4"
+              className="w-24 h-24 rounded-full mb-4 border-2 border-gray-300 shadow-lg"
             />
             <h2 className="auth_heading">Profile</h2>
           </div>
 
           <div className="auth_item">
             <label>Name *</label>
-            <Input onChange={e => setName(e.target.value)} value={name} type='text' required placeholder='Enter your name' />
+            <Input
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+              type="text"
+              required
+              placeholder="Enter your name"
+            />
           </div>
 
           <div className="auth_item">
             <label>Email *</label>
-            <Input onChange={e => setEmail(e.target.value)} value={email} type='email' required placeholder='Enter your email' />
+            <Input
+              value={email}
+              type="email"
+              disabled
+              placeholder="Your email"
+            />
           </div>
 
           <div className="auth_item">
-            <label>Password *</label>
-            <Input onChange={e => setPassword(e.target.value)} value={password} type='password' required placeholder='Enter your password' />
+            <label>New Password (Optional)</label>
+            <Input
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              type="password"
+              placeholder="Enter new password"
+            />
           </div>
 
           <div className="auth_action">
-            <Button>
-              <LoadingButton loading={loading} title='Update' />
+            <Button disabled={loading} type="submit">
+              <LoadingButton
+                loading={loading}
+                title={loading ? "Updating..." : "Update"}
+              />
             </Button>
           </div>
 
-         <div onClick={handleSignOut}>
-          <Signout/>
-         </div>
+          <button onClick={handleSignOut} className="mt-4">
+            <Signout />
+          </button>
         </div>
       </form>
     </div>

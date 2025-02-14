@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,9 +16,15 @@ export const Login = ({ setUser }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const emailChange = (event) => setEmail(event.target.value);
-  const passwordChange = (event) => setPassword(event.target.value);
+  // ✅ Load user from localStorage on first render
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [setUser]);
 
+  // ✅ Fix manual login
   const submitHandler = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -30,72 +36,67 @@ export const Login = ({ setUser }) => {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
-        console.warn("Unexpected non-JSON response:", text);
-        throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
-      }
-
       const result = await response.json();
-
       if (!response.ok || !result.token) {
-        throw new Error(result.message || 'Login failed: no token received');
+        throw new Error(result.message || 'Login failed');
       }
 
       toast.success(result.message || 'Login successful');
       localStorage.setItem('token', result.token);
 
-      // Save the default profile picture in localStorage after email login
-      localStorage.setItem('profilePic', 'https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg');
+      // ✅ Ensure all necessary user data is stored
+      const userData = {
+        id: result.userData?.id || '',
+        email: result.userData?.email || email,
+        name: result.userData?.name || 'User',
+        role: result.userData?.role || 'User',
+        photoURL: result.userData?.photoURL || 'https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg'
+      };
 
-      // Update the user state with default image after successful email login
-      setUser({ email, photoURL: 'https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg' });
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
 
-      // Clear email and password after successful login
       setEmail('');
       setPassword('');
-
-      navigate('/dashboard');
+      navigate('/profile'); // ✅ Redirect to profile
     } catch (error) {
-      console.error('Caught error:', error);
       toast.error(error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Fix Google login
   const googleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Capture email, displayName, and photoURL from Firebase user
-      const email = user.email;
-      const name = user.displayName;
-      const photoURL = user.photoURL || 'https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg'; // Fallback profile picture
+      const userData = {
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || 'Google User',
+        photoURL: user.photoURL || 'https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg'
+      };
 
-      // Send email, name, and photoURL to backend
       const response = await fetch(apis().googleLogin, {
         method: 'POST',
-        body: JSON.stringify({ email, name, photoURL }), // Pass photoURL
+        body: JSON.stringify(userData),
         headers: { 'Content-Type': 'application/json' }
       });
 
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.message || 'Google sign-in failed');
 
       localStorage.setItem('token', data.token);
       toast.success("Login successful");
 
-      // Update user state with the info fetched from Google sign-in
-      setUser({ email, photoURL });
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
 
-      navigate('/dashboard');
+      navigate('/profile');
     } catch (error) {
-      console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed');
     }
   };
@@ -111,12 +112,12 @@ export const Login = ({ setUser }) => {
           </div>
           <div className='auth_item'>
             <label>Email*</label>
-            <Input onChange={emailChange} required type='email' placeholder='Enter your email' value={email} />
+            <Input onChange={e => setEmail(e.target.value)} required type='email' placeholder='Enter your email' value={email} />
           </div>
 
           <div className='auth_item'>
             <label>Password*</label>
-            <Input onChange={passwordChange} required type='password' placeholder='Enter your password' value={password} />
+            <Input onChange={e => setPassword(e.target.value)} required type='password' placeholder='Enter your password' value={password} />
           </div>
 
           <div className="auth_action">
@@ -124,25 +125,18 @@ export const Login = ({ setUser }) => {
               <LoadingButton loading={loading} title={loading ? 'Logging in...' : 'Login'} />
             </Button>
 
-            {/* OR Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
-              <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
-              <span style={{ margin: '0 1rem', color: '#757575', fontSize: '14px' }}>OR</span>
-              <div style={{ flex: 1, height: '1px', backgroundColor: '#ddd' }}></div>
+            <div className="auth_options">
+              <Link to='/register'>Create a new account?</Link>
+              <Link to='/forgotPassword'>Forgot password?</Link>
             </div>
-
-            <Button onClick={googleLogin} disabled={loading} type="button" className="google_button">
-              <FcGoogle style={{ color: 'white', fontSize: '20px', height: '24px', width: '24px' }} />
-              <span style={{ marginLeft: '10px' }}>Continue with Google</span>
-            </Button>
           </div>
 
-          <div className="auth_options">
-            <Link to='/register'>Create a new account?</Link>
-            <Link to='/forgotPassword'>Forgot password?</Link>
-          </div>
+          <Button onClick={googleLogin} disabled={loading} type="button" className="google_button">
+            <FcGoogle />
+            <span>Continue with Google</span>
+          </Button>
         </div>
       </form>
     </div>
   );
-}; 
+};
