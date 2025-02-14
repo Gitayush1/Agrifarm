@@ -25,6 +25,6 @@ router.post('/updateProfile',updateProfile);
 router.post('/getCropsByStateSeason',getCropsByStateSeason);
 router.post('/paymentController',paymentController);
 router.post('/payment',payment);
-router.post('/bagSection',bagSection);
+router.post('/order',bagSection);
 
 module.exports = router;

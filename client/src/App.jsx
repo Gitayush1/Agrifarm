@@ -65,7 +65,7 @@ function App() {
         <Route path="/bagsection" element={<BagSection />} />
         <Route path="/Paymentsuccess" element={<Paymentsuccess />} />
         <Route path="/OrderPlaced" element={<OrderPlaced />} />
-        <Route path="/Order" element={<Order />} />
+        <Route path="/order" element={<Order />} />
         <Route path="/bag" element={<Bag />} />
 
         {/* ✅ Fix: Redirect to profile only if user is logged in */}

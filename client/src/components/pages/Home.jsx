@@ -19,7 +19,7 @@ export const Home = () => {
       >
         <div className="bg-black bg-opacity-50 w-full h-full absolute inset-0"></div>
         <div className="relative z-10 text-white">
-          <h1 className="text-5xl md:text-7xl font-bold">Welcome to Farmwise</h1>
+          <h1 className="text-5xl md:text-7xl font-bold">Welcome to Agrifarm</h1>
           <p className="mt-4 text-xl md:text-2xl">
             Empowering farmers with weather insights and crop suggestions
           </p>

@@ -59,6 +59,9 @@ export const Navbar = () => {
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
             <li className="text-white hover:text-green-400 transition-colors">Contact</li>
           </Link>
+          <Link to="/order" onClick={() => setIsMenuOpen(false)}>
+            <li className="text-white hover:text-green-400 transition-colors">Orders</li>
+          </Link>
 
           {/* Profile Icon (Fixed Navigation Issue) */}
           {currentUser ? (

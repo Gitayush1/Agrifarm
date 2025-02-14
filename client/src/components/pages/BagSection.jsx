@@ -5,8 +5,14 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PaymentForm } from './PaymentForm'; // Create this component for Stripe payment form
 import { Paymentsuccess } from './Paymentsuccess';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import apis from '../../utils/apis';
+
 
 export const BagSection = () => {
+
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,7 +30,7 @@ export const BagSection = () => {
 
   const handleNavigateToOrder = () => {
     navigate('/OrderPlaced', {
-      state: { cart, quantities,contactName }, // Passing cart and quantities data to Order.jsx
+      state: { cart, quantities, contactName }, // Passing cart and quantities data to Order.jsx
     });
   };
 
@@ -38,50 +44,49 @@ export const BagSection = () => {
   // Extract cart and quantities from location state
   const cart = location.state?.cart || [];
   const quantities = location.state?.quantities || {};
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    mobile: "",
-    address: "",
-  });
+  // const [formData, setFormData] = useState({
+  //   fullName: "",
+  //   email: "",
+  //   mobile: "",
+  //   address: "",
+  // });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // const { fullName, value } = e.target;
+    // setFormData({ ...formData, [fullName]: value });
   };
   const handleSubmit = async () => {
-    if (!formData.fullName || !formData.email || !formData.mobile || !formData.address) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
+  try {
     const requestData = {
-      ...formData,
+      fullName: contactName,
       crops: cart.map((crop) => ({
-        name: crop.name,
+        fullName: crop.fullName,
         quantity: quantities[crop.id],
         price: crop.price,
       })),
       totalAmount: calculateTotal() + 5,
     };
 
-    try {
-      const response = await fetch(apis().BagSection, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestData),
-      });
+    const response = await fetch("http://localhost:8080/public/x", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestData),
+    });
 
-      if (response.ok) {
-        toast.success("Order placed successfully!");
-        navigate("/OrderPlaced");
-      } else {
-        toast.error("Failed to place the order. Please try again.");
-      }
-    } catch (error) {
-      toast.error("Something went wrong.");
+    if (response.ok) {
+      toast.success("Order placed successfully!");
+      navigate("/OrderPlaced");
+      console.log("Success")
+    } else {
+      toast.error("Failed to place the order. Please try again.");
+      console.log("Failed")
     }
-  };
+  } catch (error) {
+    console.error("Error:", error);
+    toast.error("Something went wrong.");
+  }
+};
+
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, crop) => total + crop.price * (quantities[crop.id] || 1), 0);
     return subtotal + 5; // Adding delivery charge
