@@ -16,20 +16,21 @@ export const Profile = ({ user, setUser }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [photoURL, setPhotoURL] = useState("");
-  const [password, setPassword] = useState("");
 
-  // ✅ Load user from localStorage
+  // ✅ Ensure user is properly loaded before checking
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      navigate("/login"); // Redirect if no user is found
+    if (!user) {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        navigate("/login"); // Redirect if no user exists
+      }
     }
     setProfileLoading(false);
-  }, []);
+  }, [user]);
 
-  // ✅ Set user details when user changes
+  // ✅ Set user details when user state updates
   useEffect(() => {
     if (user) {
       setName(user.name || "");
@@ -55,7 +56,6 @@ export const Profile = ({ user, setUser }) => {
       toast.error("Error signing out. Please try again.");
     }
   };
-  
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -66,14 +66,12 @@ export const Profile = ({ user, setUser }) => {
       if (!token) throw new Error("Authentication token missing!");
 
       const updateData = { name };
-      if (password) updateData.password = password;
-
       const response = await fetch(apis().updateProfile, {
         method: "POST",
         body: JSON.stringify(updateData),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ Include token
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -82,7 +80,7 @@ export const Profile = ({ user, setUser }) => {
         throw new Error(result.message || "Failed to update profile");
 
       toast.success("Profile updated successfully!");
-      const updatedUser = { ...user, name, photoURL }; // ✅ Ensure photoURL persists
+      const updatedUser = { ...user, name, photoURL };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
     } catch (error) {
@@ -96,14 +94,6 @@ export const Profile = ({ user, setUser }) => {
     return (
       <div className="text-center mt-10">
         <p className="text-gray-600 text-lg">Loading profile...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="text-center mt-10">
-        <p className="text-gray-600 text-lg">Redirecting to login...</p>
       </div>
     );
   }
@@ -139,16 +129,6 @@ export const Profile = ({ user, setUser }) => {
               type="email"
               disabled
               placeholder="Your email"
-            />
-          </div>
-
-          <div className="auth_item">
-            <label>New Password (Optional)</label>
-            <Input
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              type="password"
-              placeholder="Enter new password"
             />
           </div>
 

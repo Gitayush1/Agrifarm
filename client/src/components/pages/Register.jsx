@@ -50,7 +50,7 @@ export const Register = () => {
                 }
             } else if (result?.status) {
                 toast.success(result?.message || "Registration successful");
-                navigate('/login');
+                navigate('/profile');
             }
         } catch (error) {
             setLoading(false);

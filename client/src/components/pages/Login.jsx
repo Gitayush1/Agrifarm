@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,12 +15,16 @@ export const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const isFirstRender = useRef(true); // ✅ Prevents unnecessary re-renders
 
-  // ✅ Load user from localStorage on first render
+  // ✅ Fix infinite loop by preventing unnecessary `setUser` calls
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     }
   }, [setUser]);
 

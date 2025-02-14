@@ -1,4 +1,4 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Navbar } from "./components/Navbar";
@@ -15,6 +15,7 @@ const stripePromise = loadStripe("pk_test_51QJs93K8ylA97zS7EdjiN3Y6A7A0lVm2Q35tj
 function App() {
   const navigate = useNavigate();
 
+  // ✅ Fix: Ensure user is loaded from localStorage only once
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user")) || null;
@@ -24,6 +25,7 @@ function App() {
     }
   });
 
+  // ✅ Fix: Update user state when localStorage changes
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -35,6 +37,7 @@ function App() {
     }
   }, []);
 
+  // ✅ Fix: Ensure navbar updates immediately on login/logout
   const handleUserUpdate = (newUser) => {
     if (newUser) {
       localStorage.setItem("user", JSON.stringify(newUser));
@@ -52,7 +55,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login setUser={handleUserUpdate} />} />
+        <Route path="/login" element={user ? <Navigate to="/profile" /> : <Login setUser={handleUserUpdate} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/otp" element={<VerifyOtp />} />
@@ -65,9 +68,10 @@ function App() {
         <Route path="/Order" element={<Order />} />
         <Route path="/bag" element={<Bag />} />
 
+        {/* ✅ Fix: Redirect to profile only if user is logged in */}
         <Route 
           path="/profile" 
-          element={user ? <Profile user={user} setUser={handleUserUpdate} /> : navigate("/login")}
+          element={user ? <Profile user={user} setUser={handleUserUpdate} /> : <Navigate to="/login" />}
         />
 
         <Route 
