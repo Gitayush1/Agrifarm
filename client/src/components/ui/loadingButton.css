@@ -1,0 +1,12 @@
+.loading_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Space between text and spinner */
+}
+
+.loading_content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between "please wait..." text and spinner */
+}

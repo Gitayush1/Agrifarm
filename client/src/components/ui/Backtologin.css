@@ -1,0 +1,28 @@
+.back_toLogin_ui {
+    background-color: #e6ffe6; /* Light green background */
+    padding: 0.8rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 14px;
+    cursor: pointer;
+    color: #4caf50; /* Green text */
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.back_toLogin_ui:hover {
+    background-color: #d4f0d4; /* Darker green on hover */
+    transform: scale(1.05);
+}
+
+.back_toLogin_ui svg {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.back_toLogin_ui svg:hover {
+    transform: rotate(20deg); /* Add a rotation effect */
+}

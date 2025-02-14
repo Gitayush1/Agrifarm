@@ -1,0 +1,115 @@
+/* BagSection.css */
+
+/* Fade-in animation for elements */
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Slide-in animation for left side of the section */
+  @keyframes slideIn {
+    0% {
+      transform: translateX(-30%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Fade-in effect for the whole page */
+  .fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+  
+  /* Slide-in effect for the left section (Contact and Address) */
+  .slide-in {
+    animation: slideIn 1s ease-out;
+  }
+  
+  /* Styling for input and textarea fields */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea {
+    transition: all 0.3s ease;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="tel"]:focus,
+  textarea:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.8);
+  }
+  
+  /* Styling for buttons with hover effects */
+  button {
+    transition: transform 0.3s ease;
+  }
+  
+  button:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Styling for the bag section (right side) */
+  .bg-white {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bg-white:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Styling for the footer section */
+  footer {
+    background-color: #222;
+    color: white;
+    padding: 20px 0;
+  }
+  
+  footer .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+  }
+  
+  footer .container .font-bold {
+    color: #4CAF50;
+  }
+  
+  footer .container .text-gray-400 {
+    color: #B0B0B0;
+  }
+  
+  footer .container a {
+    color: #B0B0B0;
+    text-decoration: none;
+  }
+  
+  footer .container a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Hover effect for bag section */
+  .bg-white:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Footer social media section - if added later */
+  footer .social-icons a {
+    margin: 0 10px;
+    color: #B0B0B0;
+    transition: color 0.3s ease;
+  }
+  
+  footer .social-icons a:hover {
+    color: #4CAF50;
+  }
+  

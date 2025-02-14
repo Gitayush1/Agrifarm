@@ -1,0 +1,40 @@
+.ui_button {
+    width: 100%;
+    padding: 0.8rem;
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    background-color: #4caf50; /* Green background for default button */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px; /* Set the height of the button */
+}
+
+.ui_button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.ui_button:active {
+    background-color: #388e3c;
+    transform: translateY(0);
+}
+
+/* Specific style for the Google button */
+.google_button {
+    background: linear-gradient(135deg, #4285F4, #34a853); /* Blue to Green Gradient */
+    color: white;
+    border-radius: 8px;
+}
+
+.google_button:hover {
+    background: linear-gradient(135deg, #357ae8, #2c8f41); /* Darker gradient on hover */
+}
+
+.google_button:active {
+    background: linear-gradient(135deg, #2a67d7, #247535); /* Even darker gradient on active */
+}
