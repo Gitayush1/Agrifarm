@@ -7,7 +7,6 @@ import { PaymentForm } from './PaymentForm'; // Create this component for Stripe
 import { Paymentsuccess } from './Paymentsuccess';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import apis from '../../utils/apis';
 
 
 export const BagSection = () => {

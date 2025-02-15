@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app } from '../firebase';
+import logo from '../assets/agrifarm_logo.png';
 
 export const Navbar = () => {
   const [currentUser, setCurrentUser] = useState();
@@ -30,7 +31,8 @@ export const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center">
           <Link to="/">
-            <h1 className="text-white font-semibold text-lg">Farmwise</h1>
+            {/* <h1 className="text-white font-semibold text-lg">Agrifarm</h1> */}
+            <img className='w-40 bg-green' src={logo} alt="logo" />
           </Link>
         </div>
 
